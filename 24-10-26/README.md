@@ -54,7 +54,7 @@ p := CreateProgram(map[string]CodeBlock{
 	"div": NewCodeBlock([]Instruction{
 		Return{exp: Conditional{
 			condition: GreaterThanExp(Var(0), Diff(Var(1), Const(1)))
-			trueCase:  Sum(Const(1), FuncCallExp("div", []Evaluatable{Diff(Var(0), Var(1))})),
+			trueCase:  Sum(Const(1), FuncCallExp("div", []Evaluatable{Diff(Var(0), Var(1)), Var(1})),
 			falseCase: Const(0),
 		}},
 	}),
