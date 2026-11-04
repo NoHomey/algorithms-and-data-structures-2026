@@ -1,0 +1,1 @@
+Solutions to the tasks from Nov 3rd 2026
