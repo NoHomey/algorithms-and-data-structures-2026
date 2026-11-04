@@ -57,6 +57,17 @@ func (rb *RingBuffer[T]) Dequeue() (T, bool) {
 	return x, true
 }
 
+func (rb *RingBuffer[T]) Pop() (T, bool) {
+	if rb.IsEmpty() {
+		var tmp T
+		return tmp, false
+	}
+	x := rb.data[rb.last-1]
+	rb.last = (rb.last - 1) % cap(rb.data)
+	rb.size--
+	return x, true
+}
+
 func (rb *RingBuffer[T]) First() (T, bool) {
 	if rb.IsEmpty() {
 		var zero T

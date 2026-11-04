@@ -27,7 +27,12 @@ func (s Stack[T]) Pop() (T, bool) {
 }
 
 func (s Stack[T]) Top() (T, bool) {
-	return s.array.Last()
+	if s.IsEmpty() {
+		var t T
+		return t, false
+	}
+	last := s.array.Last()
+	return last, true
 }
 
 func (s Stack[T]) Len() int {
