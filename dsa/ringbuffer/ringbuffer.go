@@ -62,7 +62,7 @@ func (rb *RingBuffer[T]) Pop() (T, bool) {
 		var tmp T
 		return tmp, false
 	}
-	x := rb.data[rb.last-1]
+	x := rb.data[(rb.last-1)%cap(rb.data)]
 	rb.last = (rb.last - 1) % cap(rb.data)
 	rb.size--
 	return x, true
