@@ -36,6 +36,10 @@ func NewList[Element any]() *List[Element] {
 	return &List[Element]{}
 }
 
+func (list *List[Element]) IsEmpty() bool {
+	return list.size == 0
+}
+
 func (list *List[Element]) Size() int {
 	return list.size
 }
@@ -131,25 +135,129 @@ func (list *List[Element]) RemoveNode(node *Node[Element]) Element {
 	return node.Element()
 }
 
+func ListFromNode[Element any](node *Node[Element]) *List[Element] {
+	// just in case ensure that the node is fully detached
+	node.next = nil
+	node.prev = nil
+	return &List[Element]{
+		head: node,
+		tail: node,
+		size: 1,
+	}
+}
+
+func (list *List[Element]) DetachHead() *Node[Element] {
+	head := list.head
+	if list.head.prev != nil {
+		list.head.prev.next = nil
+	}
+	list.head = list.head.prev
+	head.prev = nil
+	list.size--
+	if list.size == 0 {
+		list.tail = nil
+	}
+	return head
+}
+
+func (list *List[Element]) DetachTail() *Node[Element] {
+	tail := list.tail
+	if list.tail.next != nil {
+		list.tail.next.prev = nil
+	}
+	list.tail = list.tail.next
+	tail.next = nil
+	list.size--
+	if list.size == 0 {
+		list.head = nil
+	}
+	return tail
+}
+
+func (list *List[Element]) DetachNode(node *Node[Element]) {
+	if list.head == node {
+		list.DetachHead()
+		return
+	}
+	if list.tail == node {
+		list.DetachTail()
+		return
+	}
+	node.next.prev = node.prev
+	node.prev.next = node.next
+	list.size--
+	node.prev = nil
+	node.next = nil
+}
+
+func (list *List[Element]) InsertNodeAsFirst(node *Node[Element]) {
+	node.prev = list.head
+	// just in case guard
+	node.next = nil
+	list.head.next = node
+	list.head = node
+	list.size++
+}
+
+func (list *List[Element]) InsertNodeAsLast(node *Node[Element]) {
+	// Just in case guard
+	node.next = nil
+	node.prev = nil
+	if list.IsEmpty() {
+		list.head = node
+		list.tail = node
+	} else {
+		list.tail.prev = node
+		node.next = list.tail
+		list.tail = node
+	}
+	list.size++
+}
+
+func (list *List[Element]) Join(other *List[Element]) {
+	if other == nil || other.IsEmpty() {
+		return
+	}
+	if list == nil {
+		panic("Called Join on nil list")
+	}
+	if list.IsEmpty() {
+		*list = *other
+		return
+	}
+
+	list.tail.prev = other.head
+	other.head.next = list.tail
+	list.tail = other.tail
+	list.size += other.size
+}
+
 // To reverse a LinkedList we just detach each node and assemble a new list
 // by going from the head to the tail and building the new list from the tail.
 func (list *List[Element]) Reverse() {
-	if list.Size() == 0 {
+	if list.Size() <= 1 {
 		return
 	}
-	newTail := list.head
-	newHead := newTail
-	iter := list.head.prev
-	newTail.prev = nil
-	for iter != nil {
-		newHead.next = iter
-		iter = iter.prev
-		newHead.next.prev = newHead
-		newHead = newHead.next
-		newHead.next = nil
+	/*
+		newTail := list.head
+		newHead := newTail
+		iter := list.head.prev
+		newTail.prev = nil
+		for iter != nil {
+			newHead.next = iter
+			iter = iter.prev
+			newHead.next.prev = newHead
+			newHead = newHead.next
+			newHead.next = nil
+		}
+		list.head = newHead
+		list.tail = newTail
+	*/
+	reverse := ListFromNode(list.DetachHead())
+	for !list.IsEmpty() {
+		reverse.InsertNodeAsFirst(list.DetachHead())
 	}
-	list.head = newHead
-	list.tail = newTail
+	*list = *reverse
 }
 
 func (list *List[Element]) Data() []Element {
