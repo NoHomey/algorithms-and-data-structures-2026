@@ -18,6 +18,10 @@ func (node *Node[Element]) Element() Element {
 	return node.element
 }
 
+func (node *Node[Element]) SetElement(element Element) {
+	node.element = element
+}
+
 func (node *Node[Element]) Next() *Node[Element] {
 	return node.next
 }
