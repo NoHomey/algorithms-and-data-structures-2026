@@ -280,7 +280,7 @@ func (list *List[Element]) DataReverse() []Element {
 
 func (list *List[Element]) Split2() (*List[Element], *List[Element]) {
 	midNode := list.head
-	leftListSize := 0
+	leftListSize := 1
 	for leftListSize < list.size/2 {
 		midNode = midNode.prev
 		leftListSize++
