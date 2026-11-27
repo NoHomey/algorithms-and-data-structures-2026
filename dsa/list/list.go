@@ -1,5 +1,7 @@
 package list
 
+import "cmp"
+
 type Node[Element any] struct {
 	element Element
 	next    *Node[Element]
@@ -274,4 +276,52 @@ func (list *List[Element]) DataReverse() []Element {
 		data = append(data, iter.Element())
 	}
 	return data
+}
+
+func (list *List[Element]) Split2() (*List[Element], *List[Element]) {
+	midNode := list.head
+	leftListSize := 0
+	for leftListSize < list.size/2 {
+		midNode = midNode.prev
+		leftListSize++
+	}
+	rightSize := list.size - leftListSize
+	left := &List[Element]{
+		head: list.head,
+		tail: midNode,
+		size: leftListSize,
+	}
+	right := &List[Element]{
+		head: midNode.prev,
+		tail: list.tail,
+		size: rightSize,
+	}
+	left.tail.prev = nil
+	right.head.next = nil
+	return left, right
+}
+
+func MergeSort[Element cmp.Ordered](list *List[Element]) *List[Element] {
+	if list.Size() <= 1 {
+		return list
+	}
+	left, right := list.Split2()
+	left, right = MergeSort(left), MergeSort(right)
+	result := NewList[Element]()
+	for left.head != nil && right.head != nil {
+		var node *Node[Element]
+		if left.head.element < right.head.element {
+			node = left.DetachHead()
+		} else {
+			node = right.DetachHead()
+		}
+		result.InsertNodeAsLast(node)
+	}
+	if !left.IsEmpty() {
+		result.Join(left)
+	}
+	if !right.IsEmpty() {
+		result.Join(right)
+	}
+	return result
 }
